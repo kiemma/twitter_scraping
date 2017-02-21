@@ -9,7 +9,7 @@ import urllib
 def main():
     with open('search_template_config.json', 'rb') as infile:
         config = json.load(infile)
-        query, start, end, max_per_day, retweets = process_config(config)
+        query, start, end, max_per_day, retweets, delay = process_config(config)
 
         # only edit these if you're having problems
         delay = 1  # time to wait on each page load before reading the page
@@ -55,23 +55,32 @@ def main():
                 print('no tweets on this day')
 
             start = increment_day(start, 1)
+            filename = '{}_{:%Y-%m-%d}.json'.format(query.split('=')[1], start)
 
-
-        try:
-            with open(twitter_ids_filename) as f:
-                all_ids = ids + json.load(f)
-                data_to_write = list(set(all_ids))
-                print('tweets found on this scrape: ', len(ids))
-                print('total tweet count: ', len(data_to_write))
-        except FileNotFoundError:
-            with open(twitter_ids_filename, 'w') as f:
+            with open(filename, 'w') as outfile:
                 all_ids = ids
                 data_to_write = list(set(all_ids))
-                print('tweets found on this scrape: ', len(ids))
-                print('total tweet count: ', len(data_to_write))
+                print(data_to_write)
+                json.dump(data_to_write, outfile)
+                print('Saving: {}, {}, {}'.format(query, start, end))
 
-        with open(twitter_ids_filename, 'w') as outfile:
-            json.dump(data_to_write, outfile)
+
+
+        # try:
+        #     with open(twitter_ids_filename) as f:
+        #         all_ids = ids + json.load(f)
+        #         data_to_write = list(set(all_ids))
+        #         print('tweets found on this scrape: ', len(ids))
+        #         print('total tweet count: ', len(data_to_write))
+        # except FileNotFoundError:
+        #     with open(twitter_ids_filename, 'w') as f:
+        #         all_ids = ids
+        #         data_to_write = list(set(all_ids))
+        #         print('tweets found on this scrape: ', len(ids))
+        #         print('total tweet count: ', len(data_to_write))
+
+        # with open(twitter_ids_filename, 'w') as outfile:
+        #     json.dump(data_to_write, outfile)
 
         print('all done here')
         driver.close()
@@ -98,18 +107,19 @@ def process_config(config):
     until_raw    = config['until'].split('-')
     max_per_day  = config['max_per_day']
     retweets     = config['retweets']
+    delay        = config['delay']
 
     since = datetime.datetime(int(since_raw[0]), int(since_raw[1]), int(since_raw[2]))
     until = datetime.datetime(int(until_raw[0]), int(until_raw[1]), int(until_raw[2]))
 
     if username:
         query = "from={}".format(username)
-        return query, since, until, max, retweets
+        return query, since, until, max, retweets, delay
     if search_query:
         query = 'q="{}"'.format(urllib.parse.quote_plus(search_query))
-        return query, since, until, max, retweets
+        return query, since, until, max, retweets, delay
     else:
-        return None, None, None, None, None
+        return None, None, None, None, None, delay
 
 
 if __name__ == '__main__':
