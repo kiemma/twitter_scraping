@@ -23,11 +23,11 @@ def main():
         ids = []
 
         for day in range(days):
-            d1 = format_day(increment_day(start, 0))
-            d2 = format_day(increment_day(start, 1))
-            url = form_url(query, d1, d2)
+            since = format_day(increment_day(start, 0))
+            until = format_day(increment_day(start, 1))
+            url = form_url(query, since, until, retweets)
             print(url)
-            print(d1)
+            print(since)
             driver.get(url)
             sleep(delay)
 
@@ -92,9 +92,13 @@ def format_day(date):
     year = str(date.year)
     return '-'.join([year, month, day])
 
-def form_url(query, since, until):
-    BASE_URL = "https://twitter.com/search?l=&{}%20since%3A{}%20until%3A{}&src=typd"
+def form_url(query, since, until, retweets):
+    BASE_URL = "https://twitter.com/search?l=&{}%20since%3A{}%20until%3A{}"
     url = BASE_URL.format(query, since, until)
+    if retweets:
+        url +='include%3Aretweets'
+
+    url += '&src=typd'
     return url
 
 def increment_day(date, i):

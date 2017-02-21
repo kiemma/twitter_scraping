@@ -1,9 +1,9 @@
 {
   "search_query": "Fake News",
-  "username":     null,
   "since":        "2016-11-08",
   "until":        "2016-11-10",
+  "username":     null,
   "delay":        1.5,
   "max_per_day":  500,
-  "retweets":     false
+  "retweets":     true
 }
